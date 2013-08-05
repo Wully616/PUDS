@@ -22,14 +22,14 @@ $this_script = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 			$current .="Failed to connect to database\n";
 			file_put_contents($file, $current);
 		} 
-	$result = mysqli_query($db,"SHOW TABLES LIKE 'donators'");
+	$result = mysqli_query($db,"SHOW TABLES LIKE ".$DBTABLE."");
 	$tableExists = mysqli_num_rows($result) > 0;
 	
 if($tableExists){
  //do nothing
 } else {
 	//Create table
-	$sql = "CREATE TABLE donators 
+	$sql = "CREATE TABLE ".$DBTABLE." 
 	(
 	PID INT NOT NULL AUTO_INCREMENT, 
 	PRIMARY KEY(PID),
@@ -66,7 +66,7 @@ if ($p->validate_ipn()) {
 		file_put_contents($file, $current);
 		
 		//Add user donation to database.
-		$sql = 	'INSERT INTO donators (email, steamid, name, rank) VALUES ("'.mysqli_real_escape_string($db, $email).'", "'.$steamid.'", "'.$name.'", "'.$rank.'")';
+		$sql = 	'INSERT INTO '.$DBTABLE.' (email, steamid, name, rank) VALUES ("'.mysqli_real_escape_string($db, $email).'", "'.$steamid.'", "'.$name.'", "'.$rank.'")';
 		mysqli_query($db,$sql);		
 		
 		
