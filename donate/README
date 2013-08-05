@@ -1,0 +1,20 @@
+PUDS - Paypal-ULX Donation System 
+
+This is a collection of php based scripts which completes 
+a Paypal donation system for use with the Garrysmod admin mod ULX.
+
+Installation:
+Copy all the files to a web accessible folder on your webserver.
+
+Edit config.php to configure the script.
+
+A sample donation form has been included: index.php
+Lines will be commented showing what should be edited in index.php
+
+Author: William Robb
+E-mail: William_robb9@hotmail.com
+Website: www.wullysgamers.co.uk
+
+Credits:
+PHP Paypal IPN Integration Class - Micah Carrick
+PHP Rcon Script - William Ruckman
