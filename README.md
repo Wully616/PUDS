@@ -22,14 +22,20 @@ Paypal account
 Web Server
 
 Installation:
-Copy all the files to a web accessible folder on your webserver. CHMOD the folder+files 755
-Configure Paypal with your IPN, log into Paypal > profile > my selling preferences > Instant payment notifications
-Set PayPal to point to the IPN script, eg http://www.YOURDOMAIN.co.uk/donate/ipn.php
 
-Create a MySQL database on your server and a user with full permissions
+Copy all the files to a web accessible folder on your webserver. 
+
+CHMOD the folder+files 755.
+
+Configure Paypal with your IPN, log into Paypal > profile > my selling preferences > Instant payment notifications.
+
+Set PayPal to point to the IPN script, eg http://www.YOURDOMAIN.co.uk/donate/ipn.php
+Create a MySQL database on your server and a user with full permissions.
+
 
 Edit config.php and input the Information for your MySQL Database, Garrysmod Server Rcon details,
-Donation Groups & Prices, you do not need to enter the currency symbol for the price and the Groups must be valid ULX groups on your server
+
+Donation Groups & Prices, you do not need to enter the currency symbol for the price and the Groups must be valid ULX groups on your server.
 
 
 A sample donation form has been included: index.php

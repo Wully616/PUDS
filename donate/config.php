@@ -12,7 +12,7 @@
 $HOST = "localhost";			   	//If this script is on the same webserver as your database leave as localhost
 $DBUSER = "";       				//The user for the MySql database
 $DBPASS = "";          				//Password for the MySql user
-$DBTABLE = "";      				//The name of the database table to store the donation information
+$DBTABLE = "donators";      		//The name of the database table to store the donation information - LEAVE AS IS
 //////////////////////////////////
 
 //////////////////////////////////
