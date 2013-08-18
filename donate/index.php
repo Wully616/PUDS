@@ -11,17 +11,16 @@ require "config.php";
 	</head>
 	<body onload="sidDonate()">
 		<div class="donationform"><b =""><b =""> </b></b>
-			<!--<form name="_xclick" action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post"><b =""><b =""> --><!--For use with paypals test Sandbox-->
-			<form name="_xclick" action="https://www.paypal.com/cgi-bin/webscr" method="post"><b =""><b ="">
+			<form name="_xclick" action="<?php echo $payPalURL; ?>" method="post"><b =""><b =""> 
 				<input name="cmd" value="_xclick" type="hidden" /> 
-				<input name="business" value="YOUR_PAYPAL_EMAIL" type="hidden" /><!--Put in your paypal e-mail in the value -->
+				<input name="business" value="<?php echo $payPalEmail; ?>" type="hidden" /><!--Put in your paypal e-mail in the value -->
 				<input name="item_name" value="PUDS - Game Server Donation" type="hidden" /> <!-- Rename the item_name value whatever you want, eg Donation to WullysBuilders Sandbox Server -->
 				<input name="no_shipping" value="1" type="hidden" />
-				<input name="return" value="http://YOUR.DOMAIN" type="hidden" /> <!--When the donation is complete it will redirect back to the specified URL -->
+				<input name="return" value="<?php echo $website; ?>" type="hidden" /> <!--When the donation is complete it will redirect back to the specified URL -->
 				<input type="hidden" name="rm" value="2" /> 
-				<input type="hidden" name="notify_url"value="http://YOUR.DOMAIN/paypal/ipn.php" /><!--The paypal ipn script you downloaded in this git, replace with your website -->				
+				<input type="hidden" name="notify_url"value="<?php echo $IPN; ?>" /><!--The paypal ipn script you downloaded in this git, replace with your website -->				
 				<input name="cn" value="Comments" type="hidden" /> 
-				<input name="currency_code" value="GBP" type="hidden" />
+				<input name="currency_code" value="<?php echo $currency ?>" type="hidden" />
 				<input name="tax" value="0" type="hidden" /> 
 				<input name="lc" value="GB" type="hidden" />
 				</b>
@@ -31,10 +30,10 @@ require "config.php";
 						<td>Rank:</td>
 						<td>
 						<?php
-						echo	'<input type="radio" id="cost1" name="amount" value="'.$cost1.'" checked>'.$rank1.'<br>';
-						echo	'<input type="radio" id="cost2" name="amount" value="'.$cost2.'">'.$rank2.'<br>';
-						echo	'<input type="radio" id="cost3" name="amount" value="'.$cost3.'">'.$rank3.'<br>';
-						echo	'<input type="radio" id="cost4" name="amount" value="'.$cost4.'">'.$rank4.'<br>';
+							foreach($prices as $cost){
+								$i++;
+								echo '<input type="radio" id="cost'.$i.'" name="amount" value="'.$cost.'" checked>'.$ranks[$i - 1].' ('.$cost.$currency.')<br>';
+							}
 						?>							
 						</td>
 					</tr>					
