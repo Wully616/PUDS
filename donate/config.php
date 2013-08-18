@@ -9,29 +9,72 @@
 
 //////////////////////////////////
 ///MySQL Database Configuration///
+$UseDB = "true";					//Change to false if you do not want to use a MySQL database.
 $HOST = "localhost";			   	//If this script is on the same webserver as your database leave as localhost
 $DBUSER = "";       				//The user for the MySql database
-$DBPASS = "";          				//Password for the MySql user
-$DBTABLE = "donators";      		//The name of the database table to store the donation information - LEAVE AS IS
+$DBPASS = "";   					//Password for the MySql user
+$DBNAME = "";       				//The name of the database
+$DBTABLE = "";      			//The name of the database table to store the donation information
 //////////////////////////////////
 
 //////////////////////////////////
 /////////PayPal Info//////////////
 $payPalURL = "https://www.paypal.com/cgi-bin/webscr";
-//$payPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr"; //For Paypal sandbox
+//$payPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr"; // For Paypal sandbox
+$IPN = "http://YOURDOMAIN/donate/ipn.php"; 						// location of the IPN script
+$payPalEmail = "YOUREMAIL"; 									// your paypal email the money should be sent to
+$website = "http://YOURDOMAIN.co.uk/"; 							// your website paypal should redirect back to once completed
+$currency = "GBP";												// your currency, enter the code as it is on https://cms.paypal.com/uk/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_currency_codes
 //////////////////////////////////
 
 //////////////////////////////////
 ///Donation Ranks & prices////////
-$cost1 = "1";						//The cost of group 1 donation DO NOT INCLUDE CURRENCY SYMBOL
-$rank1 = "group1";					//The name of your ULX group the user will be added to for donating $cost1
-$cost2 = "2";
-$rank2 = "group2";
-$cost3 = "3";
-$rank3 = "group3";
-$cost4 = "4";
-$rank4 = "group4";
+$prices = array("1","2","3","4"); 								//prices for each rank, do not include currency symbol
+$ranks = array("iron","bronze","silver","gold"); 				//ulx group names of each rank corresponding to the same array position in $costs
+
+
 /////////////////////////////////
 
+/////////////////////////////////
+////Email Configuration//////////
+/////////////////////////////////
+//Failed to apply rank e-mail////
+$messageRankFail = ' 
+ 
+Thank you for your purchase '.$name.'
+ 
+Your rank information 
+------------------------- 
+Paid: '.$fee.' 
+SteamID: '.$steamid.' 
+Rank: '.$rank.' 
+------------------------- 
+			 
+There has been an issue when adding your SteamID to the correct usergroup.
+Please contact the server admin to resolve this issue.';  
 
+//Success Donation and apply rank e-mail//
+$messageSuccess = ' 
+ 
+Thank you for your purchase '.$name.'
+ 
+Your rank information 
+------------------------- 
+Paid: '.$fee.' 
+SteamID: '.$steamid.' 
+Rank: '.$rank.' 
+------------------------- 
+			 
+Your rank will be available immediatly'; 
+
+//Failed IPN verification & application of rank - note donators money will probably still have been taken
+$messageIPNFail = ' 
+ 
+Hello,
+ 
+The donation has failed to be verified by PayPal IPN, however payment may have been taken.
+Please contact the owner of the server to resolve this issue.
+
+			 
+';  
 ?>
