@@ -86,7 +86,7 @@ if ($p->validate_ipn()) {
 		$srcds_rcon = new srcds_rcon();
 		$COMMAND .=' '.$steamid.' '.$rank.'';
 		$OUTPUT = $srcds_rcon->rcon_command($IP, $PORT, $PASSWORD, $COMMAND);
-		$current .='IP: '.$IP.' Port: '.$PORT.' Password: '.$PASSWORD.' Command: '.$COMMAND."\n";
+		$current .='IP: '.$IP.' Port: '.$PORT.' Password: HIDDEN Command: '.$COMMAND."\n";
 		file_put_contents($file, $current);			
 		$current .=$OUTPUT;
 		file_put_contents($file, $current);  
