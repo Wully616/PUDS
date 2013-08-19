@@ -13,7 +13,7 @@ $p->paypal_url = $payPalURL; // $payPalURL is defined in config.php
 //Database stuff
 if($UseDB == "true"){	 
 		$db=mysqli_connect($HOST,$DBUSER,$DBPASS,$DBNAME);
-			$current .="Connected to database\n";
+			$current .="\nConnected to database\n";
 			file_put_contents($file, $current);
 			// Check connection
 			if (mysqli_connect_errno($db)) {
@@ -71,7 +71,7 @@ if ($p->validate_ipn()) {
 			$current .='$prices is an not array.\n';
 			file_put_contents($file, $current);
 		}
-		$current .="\n".$email.' '.$name.' '.$fee .' '.$steamid.' '.$rank."\n";
+		$current .=$email.' '.$name.' '.$fee .' '.$steamid.' '.$rank."\n";
 		file_put_contents($file, $current);
 		
 		//Add user donation to database.
@@ -86,7 +86,7 @@ if ($p->validate_ipn()) {
 		$srcds_rcon = new srcds_rcon();
 		$COMMAND .=' '.$steamid.' '.$rank.'';
 		$OUTPUT = $srcds_rcon->rcon_command($IP, $PORT, $PASSWORD, $COMMAND);
-		$current .='IP: '.$IP.' Port: '.$PORT.' Password: '.$PASSWORD.' Command: '.$COMMAND.'"\n"';
+		$current .='IP: '.$IP.' Port: '.$PORT.' Password: '.$PASSWORD.' Command: '.$COMMAND."\n";
 		file_put_contents($file, $current);			
 		$current .=$OUTPUT;
 		file_put_contents($file, $current);  
