@@ -35,7 +35,7 @@ $currency = "GBP";												// your currency, enter the code as it is on https
 ///Donation Ranks & prices////////
 $prices = array("1","2","3","4"); 								//prices for each rank, do not include currency symbol
 $ranks = array("iron","bronze","silver","gold"); 				//ulx group names of each rank corresponding to the same array position in $costs
-$commands = array("ulx adduserid $steamid $rank","ulx adduserid $steamid $rank","ulx adduserid $steamid $rank"); //commands for each rank, these will support other commands in the future
+$commands = array("ulx adduserid $steamid $rank","ulx adduserid $steamid $rank","ulx adduserid $steamid $rank","ulx adduserid $steamid $rank"); //commands for each rank, these will support other commands in the future
 
 
 /////////////////////////////////
