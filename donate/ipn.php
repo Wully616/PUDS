@@ -12,7 +12,7 @@ $p->paypal_url = $payPalURL; // $payPalURL is defined in config.php
 	 $current = file_get_contents($file);
 //Database stuff
 if($UseDB == "true"){	 
-		$db=mysqli_connect($HOST,$DBUSER,$DBPASS,$DBNAME);
+		$db=mysqli_connect($HOST,mysqli_real_escape_string($DBUSER),mysqli_real_escape_string ($DBPASS),mysqli_real_escape_string($DBNAME));
 			$current .="\nConnected to database\n";
 			file_put_contents($file, $current);
 			// Check connection
@@ -65,6 +65,7 @@ if ($p->validate_ipn()) {
 					$i++;
 					if($val == $fee){
 						$rank = $ranks[$i - 1];
+						$command = $commands[$i-1];
 					}
 			}
 		} else {
@@ -84,9 +85,8 @@ if ($p->validate_ipn()) {
 		
 		//Rcon connection to apply rank.
 		$srcds_rcon = new srcds_rcon();
-		$COMMAND .=' '.$steamid.' '.$rank.'';
-		$OUTPUT = $srcds_rcon->rcon_command($IP, $PORT, $PASSWORD, $COMMAND);
-		$current .='IP: '.$IP.' Port: '.$PORT.' Password: HIDDEN Command: '.$COMMAND."\n";
+		$OUTPUT = $srcds_rcon->rcon_command($IP, $PORT, $PASSWORD, $command);
+		$current .='IP: '.$IP.' Port: '.$PORT.' Password: HIDDEN Command: '.$command."\n";
 		file_put_contents($file, $current);			
 		$current .=$OUTPUT;
 		file_put_contents($file, $current);  
@@ -116,5 +116,7 @@ else
 	$headers = 'From:PUDS PayPal-ULX Donation System' . "\r\n";  
 	mail($to, $subject, $messageIPNFail, $headers);
 }
-  mysqli_close($db);  
+if($UseDB == "true"){
+	mysqli_close($db);  
+ }
 ?>  

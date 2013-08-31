@@ -1,4 +1,8 @@
 <?php
+$name = "";
+$fee = "";
+$steamid = "";
+$rank = "";
 //////////////////////////////////
 //Garrysmod Server configuration//
     $IP = "";		   				//Server IP
