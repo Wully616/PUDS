@@ -12,7 +12,7 @@ $p->paypal_url = $payPalURL; // $payPalURL is defined in config.php
 	 $current = file_get_contents($file);
 //Database stuff
 if($UseDB == "true"){	 
-		$db=mysqli_connect($HOST,mysqli_real_escape_string($DBUSER),mysqli_real_escape_string ($DBPASS),mysqli_real_escape_string($DBNAME));
+		$db=mysqli_connect($HOST,$DBUSER,$DBPASS,$DBNAME);
 			$current .="\nConnected to database\n";
 			file_put_contents($file, $current);
 			// Check connection
@@ -65,7 +65,7 @@ if ($p->validate_ipn()) {
 					$i++;
 					if($val == $fee){
 						$rank = $ranks[$i - 1];
-						$command = $commands[$i-1];
+						$command = $commands[$i - 1] .' '. $steamid.' '.$rank;
 					}
 			}
 		} else {
