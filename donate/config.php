@@ -8,6 +8,7 @@ $rank = "";
     $IP = "";		   				//Server IP
     $PORT = "";			   			//Server Port
     $PASSWORD = ""; 				//RCON password
+	$API_KEY = "";
 //////////////////////////////////
 
 //////////////////////////////////

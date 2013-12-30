@@ -8,7 +8,7 @@ $p = new paypal_class;
 $p->paypal_url = $payPalURL; // $payPalURL is defined in config.php
 
 
-	 $file = 'log.txt';
+	 $file = '/log/puds.log';
 	 $current = file_get_contents($file);
 //Database stuff
 if($UseDB == "true"){	 
@@ -21,7 +21,6 @@ if($UseDB == "true"){
 				$current .="Failed to connect to database\n";
 				file_put_contents($file, $current);
 			} 
-		$DBTABLE = mysqli_real_escape_string($db, $DBTABLE);
 		$result = mysqli_query($db,"SHOW TABLES LIKE '".$DBTABLE."'");
 		if (!$result) {
 			$current .='Error: '.mysqli_error($db).'\n';
@@ -78,7 +77,7 @@ if ($p->validate_ipn()) {
 		
 		//Add user donation to database.
 		if($UseDB == "true"){
-			$sql = 	'INSERT INTO '.$DBTABLE.' (email, steamid, name, rank) VALUES ("'.mysqli_real_escape_string($db, $email).'", "'.mysqli_real_escape_string($db, $steamid).'", "'.mysqli_real_escape_string($db, $name).'", "'.mysqli_real_escape_string($db, $rank).'")';
+			$sql = 	'INSERT INTO '.$DBTABLE.' (email, steamid, name, rank) VALUES ("'.mysqli_real_escape_string($db, $email).'", "'.$steamid.'", "'.$name.'", "'.$rank.'")';
 			mysqli_query($db,$sql);	
 			$current .="Added to database.\n";
 			file_put_contents($file, $current);			

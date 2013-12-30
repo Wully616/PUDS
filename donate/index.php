@@ -1,7 +1,9 @@
 <?php
+ob_start();
 require("config.php");
 require("steamapiv2.class.php");
-require("steamlogin.php");
+require ("openid.php");
+
 
 function GetSteamNorm($Steam64){
 	$authserver = bcsub( $Steam64, '76561197960265728' ) & 1;
@@ -11,6 +13,8 @@ function GetSteamNorm($Steam64){
 	$steamid = "STEAM_0:$authserver:$authid";
 	return $steamid;
 }
+
+
 ?>
 <script language="javascript" type="text/javascript">
 </script>
@@ -18,8 +22,19 @@ function GetSteamNorm($Steam64){
 <html>
 	<head>
 		<title>PUDS - PayPal to ULX Donation System</title>
+		<script type="text/javascript" src="js/js.js"></script>
+		<script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+		<script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/dot-luv/jquery-ui-1.10.3.custom.min.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
 	</head>
 	<body onload="sidDonate()">
+	<h1> THIS IS A TEST DONATION PAGE </h1>
+		<div id="menu-bar">
+			<form action="?login" method="post">
+						<input type="image" src="http://cdn.steamcommunity.com/public/images/signinthroughsteam/sits_small.png">
+			</form>
+		</div>
 		<div class="donationform"><b =""><b =""> </b></b>
 			<form name="_xclick" action="<?php echo $payPalURL; ?>" method="post"><b =""><b =""> 
 				<input name="cmd" value="_xclick" type="hidden" /> 
@@ -53,16 +68,72 @@ function GetSteamNorm($Steam64){
 					</tr>					
 					<tr>					
 						<td>
-							<?php
-								$steam_login_verify = SteamSignIn::validate();
-							if(!empty($steam_login_verify))
+						<?php
+
+							
+
+					echo '</form>';
+					try 
+					{
+						$openid = new LightOpenID('http://wullysgamers.co.uk/donate/');
+						if(!$openid->mode) 
+						{
+							echo "</td><td>";
+							echo '<p> Sign in through Steam to automatically fill in your details.</p>';
+							echo "</tr><tr><td>";
+							echo "<input type='hidden' name='on0' value='In-Game Name' maxlength='200'>In-Game Name:"; // The player who donated's name, for your reference
+							echo "</td><td>";
+							echo "<input class='textboxinput' type='text' id='namedonate'  name='os0' value='$friendlyName' readonly>"; //leave the name as "os0" players name is sent to paypal and used in the ipn script -->
+							echo "</td></tr><tr><td>";
+							echo "<input type='hidden' name='on1' value='SteamID' maxlength='200'>(STEAM_x:x:xxxxxxxx) SteamID: </td>"; //The Players steamID, a correct ID is needed to apply the rank to the right person-->
+							echo "</td><td>";
+							echo "<input class='textboxinput' type='text' id='siddonate'  name='os1' value='$steamID' readonly>"; // Leave the name as "os1" this is also sent to paypal and used in the ipn script. -->	
+							if(isset($_GET['login'])) 
 							{
-								$steam64 = $steam_login_verify;								
-								$steam = new SteamAPI($steam_login_verify);								
-								$steamID = GetSteamNorm($steam_login_verify); //Get normal steamID		
-								$friendlyName = $steam->getFriendlyName();  //Get players ingame name.	
-								
-							echo "<a href=\"$steam_sign_in_url\"><img src='http://cdn.steamcommunity.com/public/images/signinthroughsteam/sits_small.png' /></a>";
+								$openid->identity = 'http://steamcommunity.com/openid/?l=english';    // This is forcing english because it has a weird habit of selecting a random language otherwise
+								header('Location: ' . $openid->authUrl());
+							}
+					?>
+
+					<?php
+						} 
+						elseif($openid->mode == 'cancel') 
+						{
+							echo 'User has canceled authentication!';
+						} 
+						else 
+						{
+							if($openid->validate()) 
+							{
+									$id = $openid->identity;
+									// identity is something like: http://steamcommunity.com/openid/id/76561197960435530
+									// we only care about the unique account ID at the end of the URL.
+									$ptn = "/^http:\/\/steamcommunity\.com\/openid\/id\/(7[0-9]{15,25}+)$/";
+									preg_match($ptn, $id, $matches);
+									echo "User is logged in (steamID: $matches[1])\n";
+
+									$url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=$_STEAMAPI&steamids=$matches[1]";
+									$json_object= file_get_contents($url);
+									$json_decoded = json_decode($json_object);
+
+									foreach ($json_decoded->response->players as $player)
+									{
+										/*echo "
+										<br/>Player ID: $player->steamid
+										<br/>Player Name: $player->personaname
+										<br/>Profile URL: $player->profileurl
+										<br/>SmallAvatar: <img src='$player->avatar'/> 
+										<br/>MediumAvatar: <img src='$player->avatarmedium'/> 
+										<br/>LargeAvatar: <img src='$player->avatarfull'/> 
+										";*/
+										$steam64 = $player->steamid;																					
+										$steamID = GetSteamNorm($steam64); //Get normal steamID		
+										#$steam = new SteamAPI($steam64);			
+										#$friendlyName = $steam->getFriendlyName();  //Get players ingame name
+										$friendlyName = $player->personaname;  //Get players ingame name
+									}
+										
+
 							echo "</td><td>";
 							echo "<p> Successfully grabbed your details!</p>";
 							echo "</tr><tr><td>";
@@ -72,24 +143,20 @@ function GetSteamNorm($Steam64){
 							echo "</td></tr><tr><td>";
 							echo "<input type='hidden' name='on1' value='SteamID' maxlength='200'>(STEAM_x:x:xxxxxxxx) SteamID: </td>"; //The Players steamID, a correct ID is needed to apply the rank to the right person-->
 							echo "</td><td>";
-							echo "<input type='text' id='siddonate'  name='os1' value='$steamID' readonly>"; // Leave the name as "os1" this is also sent to paypal and used in the ipn script. -->								
+							echo "<input type='text' id='siddonate'  name='os1' value='$steamID' readonly>"; // Leave the name as "os1" this is also sent to paypal and used in the ipn script. -->			
+
+							} 
+							else 
+							{								
+									echo "User is not logged in.\n";
 							}
-							else
-							{
-								$steam_sign_in_url = SteamSignIn::genUrl();
-							echo "<a href=\"$steam_sign_in_url\"><img src='http://cdn.steamcommunity.com/public/images/signinthroughsteam/sits_small.png' /></a>";
-							echo '</td><td>';
-							echo '<p> Sign in through Steam to automatically fill in your details.</p>';
-							echo "</tr><tr><td>";
-							echo "<input type='hidden' name='on0' value='In-Game Name' maxlength='200'>In-Game Name:"; // The player who donated's name, for your reference
-							echo "</td><td>";
-							echo "<input type='text' id='namedonate'  name='os0' value=''>"; //leave the name as "os0" players name is sent to paypal and used in the ipn script -->
-							echo "</td></tr><tr><td>";
-							echo "<input type='hidden' name='on1' value='SteamID' maxlength='200'>(STEAM_x:x:xxxxxxxx) SteamID: </td>"; //The Players steamID, a correct ID is needed to apply the rank to the right person-->
-							echo "</td><td>";
-							echo "<input type='text' id='siddonate'  name='os1' value=''>"; // Leave the name as "os1" this is also sent to paypal and used in the ipn script. -->	
-							}
-							
+						}
+					} 
+					catch(ErrorException $e) 
+					{
+						echo $e->getMessage();
+					}
+												
 
 							?>
 						</td>
@@ -97,8 +164,7 @@ function GetSteamNorm($Steam64){
 				</table>					
 				<div style="margin-top:3px;text-align: center;">
 					<input type="image" src="paypal-donate.gif" border="0" name="submit" id="submit" alt="PayPal - The safer, easier way to pay online!"><img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-				</div>
-			</form>
+				</div>			
 		</div>
 	</body>
 </html>

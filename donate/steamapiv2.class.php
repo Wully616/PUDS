@@ -1,4 +1,6 @@
 <?php
+require("config.php");
+ini_set("allow_url_fopen", true);
 /*
  *      Copyright 2010 Rob McFadzean <rob.mcfadzean@gmail.com>
  *      
@@ -44,13 +46,13 @@ class SteamAPI {
 			$this->customURL = strtolower($id);
 		}
         
-            if( !file_exists('./profiles/steamprofile.'.$id.'.cache.xml') || (time() - filemtime('./profiles/steamprofile.'.$id.'.cache.xml')) > 160 )
+            if( !file_exists('steamprofile.'.$id.'.cache.xml') || (time() - filemtime('steamprofile.'.$id.'.cache.xml')) > 4000 )
         {
             $url = $this->baseUrl() . "/?xml=1";
             if( ini_get('allow_url_fopen') == '1' )
             {
                 $feed = file_get_contents($url);
-                file_put_contents('./profiles/steamprofile.'.$id.'.cache.xml',$feed);
+                file_put_contents('steamprofile.'.$id.'.cache.xml',$feed);
                 
             }
             else
@@ -63,7 +65,7 @@ class SteamAPI {
                     curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
                     $feed = curl_exec($ch);
                     curl_close($ch);
-                    file_put_contents('./profiles/steamprofile.'.$id.'.cache.xml',$feed);  
+                    file_put_contents('steamprofile.'.$id.'.cache.xml',$feed);  
                 }
                 else
                 {
@@ -76,14 +78,14 @@ class SteamAPI {
         if( function_exists('simplexml_load_file') || $id )
         {
             libxml_use_internal_errors(true);
-            $xml = simplexml_load_file('./profiles/steamprofile.'.$id.'.cache.xml');
+            $xml = simplexml_load_file('steamprofile.'.$id.'.cache.xml');
             if( !$xml )
             {
                 foreach( libxml_get_errors() as $error )
                 {
-                    @file_put_contents('./profiles/steamprofile.log.txt',date('[d/m/Y H:i.s]').' '.$error."\n",FILE_APPEND);
+                    @file_put_contents('steamprofile.log.txt',date('[d/m/Y H:i.s]').' '.$error."\n",FILE_APPEND);
                 }
-                @file_put_contents('./profiles/steamprofile.log.txt',"\n\n",FILE_APPEND);
+                @file_put_contents('steamprofile.log.txt',"\n\n",FILE_APPEND);
                 return false;
             }
 		
@@ -118,6 +120,15 @@ class SteamAPI {
                 
                 $this->headLine = (string) $xml->headline;
                 $this->summary = (string) $xml->summary;
+				
+				$xml->registerXPathNamespace('profile', 'steamprofile.'.$id.'.cache.xml'); 
+
+				$recordArr = $xml->xpath('/profile:profile/profile:groups/profile:group/profile:groupID64');
+				
+				foreach($recordArr as $record) {
+					array_push($groups,$record);
+				}
+				//$this->groups = (string) $xml->groups; //TESTING
             }
             
             if(!empty($xml->weblinks)) {
@@ -160,7 +171,12 @@ class SteamAPI {
 
 	
     }
-	
+	/**
+	 *  @return array
+	 * */
+	function getGroups() {
+		return $this->groups;
+	}	
 	/**
 	 *  If there are no games in the variable it calls the retrieveGames() function, upon completion returns an array of all of the owned games and related information
 	 *  @return array

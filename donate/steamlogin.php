@@ -1,88 +1,116 @@
 <?php
 /**
-*
-* @package Steam Community API
-* @copyright (c) 2010 ichimonai.com
-* @license http://opensource.org/licenses/mit-license.php The MIT License
-*
-*/
+ * Steam Login
+ * ----------------------------------
+ * Provided with no warranties by Ryan Stewart (www.calculator.tf)
+ * This has been tested on MyBB 1.6
+ */
+class steam {
 
-class SteamSignIn
-{
-	const STEAM_LOGIN = 'https://steamcommunity.com/openid/login';
+    // You can get an API key by going to http://steamcommunity.com/dev/apikey
+    public $API_KEY = "F14739CB25F0A9C0651D1111EF2D6DAE";
 
-	/**
-	* Get the URL to sign into steam
-	*
-	* @param mixed returnTo URI to tell steam where to return, MUST BE THE FULL URI WITH THE PROTOCOL
-	* @param bool useAmp Use &amp; in the URL, true; or just &, false. 
-	* @return string The string to go in the URL
-	*/
-	public static function genUrl($returnTo = false, $useAmp = true)
-	{
-		$returnTo = (!$returnTo) ? (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] : $returnTo;
-		
-		$params = array(
-			'openid.ns'			=> 'http://specs.openid.net/auth/2.0',
-			'openid.mode'		=> 'checkid_setup',
-			'openid.return_to'	=> $returnTo,
-			'openid.realm'		=> (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'],
-			'openid.identity'	=> 'http://specs.openid.net/auth/2.0/identifier_select',
-			'openid.claimed_id'	=> 'http://specs.openid.net/auth/2.0/identifier_select',
-		);
-		
-		$sep = ($useAmp) ? '&amp;' : '&';
-		return self::STEAM_LOGIN . '?' . http_build_query($params, '', $sep);
-	}
-	
-	/**
-	* Validate the incoming data
-	*
-	* @return string Returns the SteamID64 if successful or empty string on failure
-	*/
-	public static function validate()
-	{
-		// Star off with some basic params
-		$params = array(
-			'openid.assoc_handle'	=> $_GET['openid_assoc_handle'],
-			'openid.signed'			=> $_GET['openid_signed'],
-			'openid.sig'			=> $_GET['openid_sig'],
-			'openid.ns'				=> 'http://specs.openid.net/auth/2.0',
-		);
-		
-		// Get all the params that were sent back and resend them for validation
-		$signed = explode(',', $_GET['openid_signed']);
-		foreach($signed as $item)
-		{
-			$val = $_GET['openid_' . str_replace('.', '_', $item)];
-			$params['openid.' . $item] = get_magic_quotes_gpc() ? stripslashes($val) : $val; 
-		}
+    function __construct() {
+        global $db;
 
-		// Finally, add the all important mode. 
-		$params['openid.mode'] = 'check_authentication';
-		
-		// Stored to send a Content-Length header
-		$data =  http_build_query($params);
-		$context = stream_context_create(array(
-			'http' => array(
-				'method'  => 'POST',
-				'header'  => 
-					"Accept-language: en\r\n".
-					"Content-type: application/x-www-form-urlencoded\r\n" .
-					"Content-Length: " . strlen($data) . "\r\n",
-				'content' => $data,
-			),
-		));
+        $get_key = $db->fetch_array($db->simple_select("settings", "name, value", "name = 'steamlogin_api_key'"));
+        $this->API_KEY = $get_key['value'];
+    }
+    
+    function curl($url)
+    {
+        if(function_exists('curl_version'))
+        {
+            $ch = curl_init();
+            curl_setopt_array($ch, array(CURLOPT_URL => $url, CURLOPT_HEADER => false, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10));
+            $data = curl_exec($ch);
+            curl_close($ch);
+            return $data;
 
-		$result = file_get_contents(self::STEAM_LOGIN, false, $context);
-		
-		// Validate wheather it's true and if we have a good ID
-		preg_match("#^http://steamcommunity.com/openid/id/([0-9]{17,25})#", $_GET['openid_claimed_id'], $matches);
-		$steamID64 = is_numeric($matches[1]) ? $matches[1] : 0;
+        } else { // if(function_exists('curl_version'))
 
-		// Return our final value
-		return preg_match("#is_valid\s*:\s*true#i", $result) == 1 ? $steamID64 : '';
-	}
-}
+            if (function_exists('fopen') && ini_get('allow_url_fopen'))
+            {
+                $context = stream_context_create( array(
+                    'http'=>array(
+                      'timeout' => 10.0
+                    )
+                  ));
+                $handle = @fopen($url, 'r', false, $context);
+                $file = @stream_get_contents($handle);
+                @fclose($handle);
+                return $file;
+
+            } else {
+                    if(!function_exists('fopen') && ini_get('allow_url_fopen')){
+                        die("cURL and Fopen are both disabled. Please enable one or the other. cURL is prefered.");
+                    } elseif(function_exists('fopen') && !ini_get('allow_url_fopen')){
+                            die("cURL is disabled and Fopen is enabled but 'allow_url_fopen' is disabled(means you can not open external urls). Please enabled one or the other.");
+                    } else {
+                            die("cURL and Fopen are both disabled. Please enable one or the other. cURL is prefered.");
+                    }
+            }
+
+        } // close else
+    } // close function curl
+        
+    /**
+     * get_user_info
+     *-------------------------------------
+     * This will return information about the Steam user
+     * including their avatar, persona and online status.
+     */
+        function get_user_info($id = '') {
+
+        // Resolve our ID.
+                $id = $this->_resolve_vanity($id);
+
+        if($id['status'] == 'success')
+        {
+
+                    $info_array = $this->curl('http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key='.$this->API_KEY.'&steamids='.$id['steamid']);
+                    $info_array = json_decode($info_array, true);
+
+            if(isset($info_array['response']['players'][0])) 
+            {
+
+                $player_info = $info_array['response']['players'][0];
+
+                $personaname = $player_info['personaname'];
+                $profileurl = $player_info['profileurl'];
+                $avatar = $player_info['avatarfull'];
+                $personastate = $player_info['personastate'];
+
+                $return_array = array(
+                    'status' => 'success',
+                    'steamid' => $id['steamid'],
+                    'personaname' => $personaname,
+                    'profileurl' => $profileurl,
+                    'avatar' => $avatar,
+                    'personastate' => $personastate
+                );
+
+            } else {
+
+                $return_array = array(
+                    'status' => 'error',
+                    'message' => 'An error occured retrieving user information from the Steam service.'
+                );
+
+            } // close else
+
+        } elseif($id['status'] == 'error')
+        {
+
+            $return_array = array(
+                'status' => 'error',
+                'message' => $id['message']
+            );
+
+        } // close elseif($id['status'] == 'error')
+
+        return $return_array;
+
+        } // close get_user_info
 
 ?>
