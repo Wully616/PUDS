@@ -1,7 +1,6 @@
 <?php
 ob_start();
 require("config.php");
-require("steamapiv2.class.php");
 require ("openid.php");
 
 
@@ -29,7 +28,6 @@ function GetSteamNorm($Steam64){
 		<link rel="stylesheet" type="text/css" href="css/style.css">
 	</head>
 	<body onload="sidDonate()">
-	<h1> THIS IS A TEST DONATION PAGE </h1>
 		<div id="menu-bar">
 			<form action="?login" method="post">
 						<input type="image" src="http://cdn.steamcommunity.com/public/images/signinthroughsteam/sits_small.png">
@@ -75,7 +73,7 @@ function GetSteamNorm($Steam64){
 					echo '</form>';
 					try 
 					{
-						$openid = new LightOpenID($donationLocation);
+						$openid = new LightOpenID($donationDir);
 						if(!$openid->mode) 
 						{
 							echo "</td><td>";
@@ -93,9 +91,6 @@ function GetSteamNorm($Steam64){
 								$openid->identity = 'http://steamcommunity.com/openid/?l=english';    // This is forcing english because it has a weird habit of selecting a random language otherwise
 								header('Location: ' . $openid->authUrl());
 							}
-					?>
-
-					<?php
 						} 
 						elseif($openid->mode == 'cancel') 
 						{
