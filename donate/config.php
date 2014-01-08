@@ -8,9 +8,12 @@ $rank = "";
     $IP = "";		   				//Server IP
     $PORT = "";			   			//Server Port
     $PASSWORD = ""; 				//RCON password
-	$API_KEY = "";
+	$API_KEY = "";					//Steam API Key http://steamcommunity.com/dev/registerkey
 //////////////////////////////////
 
+//////////////////////////////////
+////////Script Location///////////
+$donationLocation = ""				//Enter the URL location of the donation script which has the index.php file eg http://YOURDOMAIN.co.uk/donate/
 //////////////////////////////////
 ///MySQL Database Configuration///
 $UseDB = "true";					//Change to false if you do not want to use a MySQL database.

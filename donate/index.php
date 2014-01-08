@@ -75,7 +75,7 @@ function GetSteamNorm($Steam64){
 					echo '</form>';
 					try 
 					{
-						$openid = new LightOpenID('http://wullysgamers.co.uk/donate/');
+						$openid = new LightOpenID($donationLocation);
 						if(!$openid->mode) 
 						{
 							echo "</td><td>";
