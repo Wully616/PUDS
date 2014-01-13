@@ -28,6 +28,7 @@ function GetSteamNorm($Steam64){
 		<link rel="stylesheet" type="text/css" href="css/style.css">
 	</head>
 	<body onload="sidDonate()">
+	<h1> THIS IS A TEST DONATION PAGE </h1>
 		<div id="menu-bar">
 			<form action="?login" method="post">
 						<input type="image" src="http://cdn.steamcommunity.com/public/images/signinthroughsteam/sits_small.png">
