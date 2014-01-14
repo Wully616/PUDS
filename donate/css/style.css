@@ -1,3 +1,9 @@
+body{
+	background-image: url(images/background.jpg);
+	width:1000px;
+	margin:auto;
+}
+
 .textboxinput{
 
 }
