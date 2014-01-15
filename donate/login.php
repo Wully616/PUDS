@@ -56,6 +56,8 @@ function GetSteamNorm($Steam64){
 	//Concatenate the STEAM_ prefix and the first number, which is always 0, as well as colons with the other two numbers	$steamid = "STEAM_0:$authserver:$authid";
 	return $steamid;
 }
+$curdirectory = curDirectory();
+$curdomain = curDomain();
 
 if(empty($_STEAMAPI)) {
 	echo "<h1>You have not configured PUDS installer correctly! Please edit login.php and put your Steam API Key in the top of the file and try again!</h1>";
@@ -71,7 +73,7 @@ if(empty($_STEAMAPI)) {
 			<p>You will be told your not admin, Log out then Log in again to be authenticated as admin.</p>";
 	
 		try {
-			$openid = new LightOpenID(curDirectory());
+			$openid = new LightOpenID($curdomain);
 			if(!$openid->mode){
 				if(isset($_GET['login'])) {
 					$openid->identity = 'http://steamcommunity.com/openid/?l=english';
@@ -116,7 +118,7 @@ if(empty($_STEAMAPI)) {
 							FWRITE($fp, $str);
 							FCLOSE($fp);			
 							echo "<p> Successfully made $friendlyName an admin!</p>";
-							header("Location: logout.php");							
+							header("Location: $curdirectory/logout.php");							
 						}							
 						if($steam64 == $admin){
 							$_SESSION['admin'] = True;
@@ -124,7 +126,7 @@ if(empty($_STEAMAPI)) {
 							$_SESSION['admin'] = False;
 						}
 					}
-					header("Location: install.php");
+					header("Location: $curdirectory/install.php");
 				}		
 			} 
 		} catch(ErrorException $e) {
