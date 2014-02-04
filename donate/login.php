@@ -52,8 +52,10 @@ function curDirectory() {
 function GetSteamNorm($Steam64){
 	
 	$authserver = bcsub( $Steam64, '76561197960265728' ) & 1;
-	//Get the third number of the steamid	$authid = ( bcsub( $Steam64, '76561197960265728' ) - $authserver ) / 2;
-	//Concatenate the STEAM_ prefix and the first number, which is always 0, as well as colons with the other two numbers	$steamid = "STEAM_0:$authserver:$authid";
+	//Get the third number of the steamid	
+	$authid = ( bcsub( $Steam64, '76561197960265728' ) - $authserver ) / 2;
+	//Concatenate the STEAM_ prefix and the first number, which is always 0, as well as colons with the other two numbers	
+	$steamid = "STEAM_0:$authserver:$authid";
 	return $steamid;
 }
 $curdirectory = curDirectory();
